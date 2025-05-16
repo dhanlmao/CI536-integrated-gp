@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth } from '../firebase/config';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import './Navbar.css'; // 👈 Add this line
+import './Navbar.css';
 
 const Navbar = () => {
   const [user, setUser] = useState(undefined);
@@ -26,26 +26,44 @@ const Navbar = () => {
   if (user === undefined) return null;
 
   return (
-    <nav className="navbar">
+    <nav className="navbar" aria-label="Main navigation">
       <div className="navbar-left">
-        <img src="/logo.png" alt="Logo" className="navbar-logo" />
+        <img src="/logo.png" alt="Brighton Student Marketplace Logo" className="navbar-logo" />
         <Link to="/" className="navbar-title">Brighton Student Marketplace</Link>
       </div>
 
-      <button className="navbar-toggle" onClick={() => setMenuOpen(!menuOpen)}>
+      <button
+        className="navbar-toggle"
+        onClick={() => setMenuOpen(!menuOpen)}
+        aria-label="Toggle navigation menu"
+        aria-controls="navbar-links"
+        aria-expanded={menuOpen}
+      >
         ☰
       </button>
 
-      <div className={`navbar-links ${menuOpen ? 'active' : ''}`}>
-        <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
-        <Link to="/post" onClick={() => setMenuOpen(false)}>Post Item</Link>
-        {user && <Link to="/my-listings" onClick={() => setMenuOpen(false)}>My Listings</Link>}
-        {!user ? (
-          <Link to="/login" onClick={() => setMenuOpen(false)}>Login</Link>
-        ) : (
-          <button onClick={handleLogout}>Logout</button>
+      <ul id="navbar-links" className={`navbar-links ${menuOpen ? 'active' : ''}`}>
+        <li>
+          <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
+        </li>
+        <li>
+          <Link to="/post" onClick={() => setMenuOpen(false)}>Post Item</Link>
+        </li>
+        {user && (
+          <li>
+            <Link to="/my-listings" onClick={() => setMenuOpen(false)}>My Listings</Link>
+          </li>
         )}
-      </div>
+        {!user ? (
+          <li>
+            <Link to="/login" onClick={() => setMenuOpen(false)}>Login</Link>
+          </li>
+        ) : (
+          <li>
+            <button onClick={handleLogout} aria-label="Logout">Logout</button>
+          </li>
+        )}
+      </ul>
     </nav>
   );
 };

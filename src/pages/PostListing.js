@@ -12,8 +12,13 @@ const PostListing = () => {
     e.preventDefault();
     if (!image) return alert("Please upload an image");
 
+    if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
+      return alert("Please enter a valid non-negative price (up to 2 decimal places, no exponent notation).");
+    }
+
+    const roundedPrice = parseFloat(price).toFixed(2);
+
     try {
-      // Upload image to ImgBB
       const formData = new FormData();
       formData.append("image", image);
 
@@ -23,15 +28,10 @@ const PostListing = () => {
       });
 
       const data = await res.json();
-      console.log("ImgBB response: ", data);
-
-      if (!data.success) {
-        throw new Error("ImgBB upload failed: " + data.error.message);
-      }
+      if (!data.success) throw new Error("Image upload failed");
 
       const imageUrl = data.data.url;
 
-      // Get user info
       const user = auth.currentUser;
       let userName = "Unknown";
       let userEmail = "unknown";
@@ -44,11 +44,10 @@ const PostListing = () => {
         userEmail = user.email || "unknown";
       }
 
-      // Save listing to Firestore
       await addDoc(collection(db, "listings"), {
         title,
         description,
-        price,
+        price: roundedPrice,
         imageUrl,
         userId: user ? user.uid : "guest",
         userEmail,
@@ -68,41 +67,60 @@ const PostListing = () => {
   };
 
   return (
-  <div className="container" style={{ display: 'flex', justifyContent: 'center', marginTop: '40px' }}>
-    	<form onSubmit={handleSubmit} className="card" style={{ maxwidth: '500px', width: '100%' }}>
-      	<h2 style={{ textAllign: 'center' }}>Post New Listing</h2>
-      	<input
-        	placeholder="Title"
-        	value={title}
-        	onChange={e => setTitle(e.target.value)}
-        	required
-        	style={{ marginBottom: '10px', width: '100%' }}
-      	/>
-      	<textarea
-        	placeholder="Description"
-        	value={description}
-        	onChange={e => setDescription(e.target.value)}
-        	required
-        	style={{ marginBottom: '10px', width: '100%' }}
-      	/>
-      	<input
-        	placeholder="Price"
-        	type="number"
-        	value={price}
-        	onChange={e => setPrice(e.target.value)}
-        	required
-        	style={{ marginBottom: '10px', width: '100%' }}
-      	/>
-      	<input
-        	type="file"
-        	accept="image/*"
-        	onChange={e => setImage(e.target.files[0])}
-        	required
-        	style={{ marginBottom: '15px', width: '100%' }}
-      	/>
-      	<button type="submit">Post</button>
-    	</form>
-   </div>
+    <div className="container" style={{ display: 'flex', justifyContent: 'center', marginTop: '40px' }}>
+      <form onSubmit={handleSubmit} className="card" style={{ maxWidth: '500px', width: '100%' }}>
+        <h2 style={{ textAlign: 'center' }}>Post New Listing</h2>
+
+        <label htmlFor="title" className = "sr-only">Title</label>
+        <input
+          id="title"
+          placeholder="Title"
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+          required
+          style={{ marginBottom: '10px', width: '100%' }}
+        />
+
+        <label htmlFor="description" className="sr-only">Description</label>
+        <textarea
+          id="description"
+          placeholder="Description"
+          value={description}
+          onChange={e => setDescription(e.target.value)}
+          required
+          style={{ marginBottom: '10px', width: '100%' }}
+        />
+
+        <label htmlFor="price" className="sr-only">Price</label>
+        <input
+          id="price"
+          placeholder="Price"
+          type="text"
+          value={price}
+          onChange={e => {
+            const input = e.target.value;
+            const regex = /^\d*\.?\d{0,2}$/;
+            if (input === '' || regex.test(input)) {
+              setPrice(input);
+            }
+          }}
+          required
+          style={{ marginBottom: '10px', width: '100%' }}
+        />
+
+        <label htmlFor="image" className="sr-only">Upload Image</label>
+        <input
+          id="image"
+          type="file"
+          accept="image/*"
+          onChange={e => setImage(e.target.files[0])}
+          required
+          style={{ marginBottom: '15px', width: '100%' }}
+        />
+
+        <button type="submit">Post</button>
+      </form>
+    </div>
   );
 };
 

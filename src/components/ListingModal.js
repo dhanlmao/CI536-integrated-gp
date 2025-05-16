@@ -4,16 +4,38 @@ const ListingModal = ({ listing, onClose, timeAgo }) => {
   if (!listing) return null;
 
   return (
-    <div style={overlayStyle}>
-      <div style={modalStyle}>
-        <button onClick={onClose} style={closeStyle}>✖</button>
-        <img src={listing.imageUrl} alt={listing.title} style={{ width: '100%', maxHeight: '300px', objectFit: 'contain' }} />
-        <h2>{listing.title}</h2>
-        <p>{listing.description}</p>
+    <div style={overlayStyle} role="presentation" onClick={onClose}>
+      <div
+        style={modalStyle}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="listing-title"
+        aria-describedby="listing-description"
+        tabIndex="-1"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          style={closeStyle}
+          aria-label="Close modal"
+        >
+          ✖
+        </button>
+
+        <img
+          src={listing.imageUrl}
+          alt={`Image of ${listing.title}`}
+          style={{ width: '100%', maxHeight: '300px', objectFit: 'contain' }}
+        />
+
+        <h2 id="listing-title">{listing.title}</h2>
+        <p id="listing-description">{listing.description}</p>
         <strong>£{listing.price}</strong>
+
         <p style={{ fontSize: '14px', color: '#666', marginTop: '10px' }}>
           Posted by <strong>{listing.userName || 'Unknown'}</strong> {timeAgo(listing.createdAt)}
         </p>
+
         {listing.userEmail && (
           <a
             href={`mailto:${listing.userEmail}?subject=Interest in your listing "${listing.title}"`}
@@ -61,7 +83,6 @@ const closeStyle = {
   fontSize: '20px',
   cursor: 'pointer',
   color: '#000'
-  
 };
 
 export default ListingModal;

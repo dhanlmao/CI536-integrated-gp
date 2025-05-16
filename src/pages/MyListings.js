@@ -52,12 +52,28 @@ const MyListings = () => {
   };
 
   const handleSave = async (id) => {
+    const parsedPrice = parseFloat(editData.price);
+    if (
+      isNaN(parsedPrice) ||
+      parsedPrice < 0 ||
+      !/^\d+(\.\d{1,2})?$/.test(editData.price)
+    ) {
+      alert("Please enter a valid, non-negative price (up to 2 decimal places, no exponent notation).");
+      return;
+    }
+
+    const roundedPrice = parsedPrice.toFixed(2);
+
     await updateDoc(doc(db, 'listings', id), {
-      ...editData
+      title: editData.title,
+      price: roundedPrice,
+      description: editData.description
     });
 
     setMyListings(prev =>
-      prev.map(item => (item.id === id ? { ...item, ...editData } : item))
+      prev.map(item =>
+        item.id === id ? { ...item, ...editData, price: roundedPrice } : item
+      )
     );
     setEditingId(null);
   };
@@ -72,19 +88,34 @@ const MyListings = () => {
             <img src={listing.imageUrl} alt={listing.title} />
             {editingId === listing.id ? (
               <>
+                <label htmlFor={`title-${listing.id}`} style={{ display: 'block' }}>Title</label>
                 <input
+                  id={`title-${listing.id}`}
                   value={editData.title}
                   onChange={e => setEditData({ ...editData, title: e.target.value })}
                 />
+
+                <label htmlFor={`price-${listing.id}`} style={{ display: 'block' }}>Price</label>
                 <input
-                  type="number"
+                  id={`price-${listing.id}`}
+                  type="text"
                   value={editData.price}
-                  onChange={e => setEditData({ ...editData, price: e.target.value })}
+                  onChange={e => {
+                    const input = e.target.value;
+                    const regex = /^\d*\.?\d{0,2}$/;
+                    if (input === '' || regex.test(input)) {
+                      setEditData({ ...editData, price: input });
+                    }
+                  }}
                 />
+
+                <label htmlFor={`description-${listing.id}`} style={{ display: 'block' }}>Description</label>
                 <textarea
+                  id={`description-${listing.id}`}
                   value={editData.description}
                   onChange={e => setEditData({ ...editData, description: e.target.value })}
                 />
+
                 <div style={{ marginTop: '10px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
                   <button onClick={() => handleSave(listing.id)}>Save</button>
                   <button onClick={() => setEditingId(null)}>Cancel</button>

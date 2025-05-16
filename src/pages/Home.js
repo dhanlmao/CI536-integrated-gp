@@ -33,16 +33,27 @@ const Home = () => {
     return date.toLocaleDateString();
   };
 
+  const handleKeyPress = (event, listing) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      setSelectedListing(listing);
+    }
+  };
+
   return (
-    <div className="grid">
+    <main className="grid" aria-label="Listings">
       {listings.map(listing => (
         <div
           className="card"
           key={listing.id}
           onClick={() => setSelectedListing(listing)}
+          onKeyDown={(e) => handleKeyPress(e, listing)}
+          tabIndex="0"
+          role="button"
+          aria-label={`View details for ${listing.title}, priced at £${listing.price}`}
           style={{ cursor: 'pointer' }}
         >
-          <img src={listing.imageUrl} alt={listing.title} />
+          <img src={listing.imageUrl} alt={`Listing: ${listing.title}`} />
           <h3>{listing.title}</h3>
           <p style={{ margin: '6px 0', color: '#666', fontSize: '14px' }}>
             Posted by: <strong>{listing.userName || 'Unknown'}</strong>
@@ -59,7 +70,7 @@ const Home = () => {
         onClose={() => setSelectedListing(null)}
         timeAgo={timeAgo}
       />
-    </div>
+    </main>
   );
 };
 

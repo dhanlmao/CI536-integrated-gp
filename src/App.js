@@ -6,6 +6,7 @@ import PostListing from './pages/PostListing';
 import Navbar from './components/Navbar';
 import MyListings from './pages/MyListings';
 import ForgotPassword from './pages/ForgotPassword';
+import NotFound from'./pages/NotFound';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/post" element={<PostListing />} />
         <Route path="/my-listings" element={<MyListings />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="*" element={<NotFound />} /> 
       </Routes>
     </Router>
   );
